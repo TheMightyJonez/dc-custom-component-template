@@ -1,52 +1,34 @@
-import logging
-from typing import Any, Dict, List, Tuple
+from haystack.nodes import Component  # or 'from haystack.preview.components import Component' depending on your version
 
-from haystack import component
+class Calculator(Component):
+    def __init__(self, param1=None, param2=None):
+        # IMPORTANT: The new Component class doesn't expect positional arguments.
+        # Always call super().__init__() with no extra arguments:
+        super().__init__()
+        
+        # Store custom parameters as instance variables, if needed:
+        self.param1 = param1
+        self.param2 = param2
 
-logger = logging.getLogger(__name__)
-
-
-class Calculator(component):
-    """
-    A simple calculator node for Haystack.
-    """
-
-    outgoing_edges = 1
-
-    def run(self, query: str, **kwargs: Any) -> Tuple[Dict[str, Any], str]:
-        """
-        Main execution logic of the node.
-
-        :param query: The user query, expected to be a math expression (e.g. "2 + 2")
-        :param kwargs: Additional parameters from preceding nodes
-        :return: A tuple (output_dict, "output_edge_name")
-        """
-        expression = query.strip()
-        logger.info(f"Received expression for calculation: {expression}")
-
+    def run(self, query: str, **kwargs):
+        # Your custom logic. For example:
         try:
-            result = eval(expression)
+            result = eval(query)
         except Exception as e:
-            logger.error(f"Error in evaluating expression '{expression}': {e}")
             result = None
+        
+        return {"result": result}, "output_1"
 
-        output = {"result": result}
-        return output, "output_1"
-
-    def run_batch(
-        self, queries: List[str], **kwargs: Any
-    ) -> Tuple[List[Dict[str, Any]], str]:
+    def to_dict(self):
         """
-        Batch processing version of `run`.
-        """
-        results = []
-        for query in queries:
-            expression = query.strip()
-            try:
-                result = eval(expression)
-            except Exception as e:
-                logger.error(f"Error in evaluating expression '{expression}': {e}")
-                result = None
-            results.append({"result": result})
+        The to_dict() method is needed if you load/save pipelines from YAML or
+        use the new pipeline "config" approach. It tells Haystack how to re-instantiate
+        this component.
 
-        return results, "output_1"
+        Make sure your keys match any custom arguments in __init__().
+        """
+        return {
+            "type": self.__class__.__name__,
+            "param1": self.param1,
+            "param2": self.param2
+        }
