@@ -1,11 +1,12 @@
 import logging
 from typing import Any, Dict, List, Tuple
 
-from haystack import BaseComponent
+from haystack import component
 
 logger = logging.getLogger(__name__)
 
-class Calculator(BaseComponent):
+
+class Calculator(component):
     """
     A simple calculator node for Haystack.
     """
