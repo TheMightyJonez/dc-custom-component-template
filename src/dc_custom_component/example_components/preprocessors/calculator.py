@@ -1,10 +1,10 @@
-from haystack.nodes import Component
+from haystack import component
 
-class Calculator(Component):
+class Calculator(component):
 
     def run(self, query: str, **kwargs):
         try:
             result = eval(query)
         except Exception as e:
             result = None
-        return {"result": result}, "output_1"
+        return {"result": result}
